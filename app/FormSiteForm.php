@@ -35,8 +35,17 @@ class FormSiteForm
         return $this->parseResponse($response);
     }
 
+    public function getFormResults($formName, $page)
+    {
+        $response = $this->client->request('GET', $this->base_url . 'forms/' . $formName . '/results?fs_api_key=' . $this->api_key . '&fs_page=' . $page . '&fs_include_headings=');
+        return $this->parseResponse($response);
+    }
+
     private function parseResponse($response)
     {
-        return new \SimpleXMLElement($response->getBody()->getContents());
+        $xml = $response->getBody()->getContents();
+        $dom = new \DOMDocument();
+        $dom->loadXML($xml);
+        return $dom;
     }
 }

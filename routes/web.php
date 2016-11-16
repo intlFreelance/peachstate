@@ -15,4 +15,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('allForms', 'FormSiteController@getFormSiteForms');
+Route::get('formsite/all-forms', 'FormSiteController@getFormSiteForms');
+Route::get('formsite/new-hire-results', 'FormSiteController@getNewHireResults');
