@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\FormSiteForm;
 use App\Applicant;
+use App\ResultLog;
 use Carbon\Carbon;
 use Exception;
 
 class FormSiteController extends Controller
 {
-    private $i;
+    private $applicants;
+    private $logs;
     public function getFormsiteForms(){
         $form_api = new FormSiteForm;
         dd($form_api->allForms());
@@ -18,7 +20,8 @@ class FormSiteController extends Controller
 
     public function getNewHireResults(){
         ini_set('max_execution_time', 600);
-        $this->i = 0;
+        $this->applicants = 0;
+        $this->logs = 0;
         $maxApplicationId = Applicant::getMaxApplicationId() + 1;
         $pageNum = 1;
         $form_api = new FormSiteForm;
@@ -39,7 +42,7 @@ class FormSiteController extends Controller
             }
             $pageNum++;
         }while($resultLength > 0);
-        return $this->i . " applications were successfully inserted";
+        return $this->applicants . " applications were successfully inserted.";
     }
     private function mapFormResults($xmlDoc){
         try{
@@ -49,14 +52,28 @@ class FormSiteController extends Controller
                 $metas = $result->getElementsByTagName("meta");
                 $items = $result->getElementsByTagName("item");
                 $result_status = $this->getElementValueByAttribute($metas, "id", "result_status");
+                
+                //map the result log
+                $applicationId = $result->getAttribute("id");
+                $firstName = $this->getElementValuesByAttribute($items, "id", "1");
+                $lastName = $this->getElementValuesByAttribute($items, "id", "2");
+                $log = new ResultLog;
+                $log->applicationId = $applicationId;
+                $log->firstName = $firstName;
+                $log->lastName = $lastName;
+                $log->applicationStatus = $result_status;
+                $log->save();
+                $this->logs++;
+                
+                //skip if the result is not complete
                 if($result_status != "Complete"){
                     continue;
                 }
                 $applicant = new Applicant;
-                $applicant->applicationId = $result->getAttribute("id");
-                $applicant->firstName = $this->getElementValuesByAttribute($items, "id", "1");
+                $applicant->applicationId = $applicationId;
+                $applicant->firstName = $firstName;
                 $applicant->middleName = $this->getElementValuesByAttribute($items, "id", "4");
-                $applicant->lastName = $this->getElementValuesByAttribute($items, "id", "2");
+                $applicant->lastName = $lastName;
                 $applicant->gender = $this->getElementValuesByAttribute($items, "id", "23");
                 $strDateOfBirth = $this->getElementValuesByAttribute($items, "id", "165");
                 $dateOfBirth = isset($strDateOfBirth) ? Carbon::createFromFormat('m/d/Y', $strDateOfBirth) : null;
@@ -87,7 +104,7 @@ class FormSiteController extends Controller
                 $payRate = is_numeric($strPayRate) ? $strPayRate : 0.00;
                 $applicant->payRate = $payRate;
                 $applicant->save();
-                $this->i++;
+                $this->applicants++;
             }
         }catch(Exception $ex){
             die($ex->getMessage());
