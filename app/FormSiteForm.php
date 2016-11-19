@@ -35,9 +35,20 @@ class FormSiteForm
         return $this->parseResponse($response);
     }
 
-    public function getFormResults($formName, $page)
+    public function getFormResults($formName, $parameters=[])
     {
-        $response = $this->client->get($this->base_url . 'forms/' . $formName . '/results?fs_api_key=' . $this->api_key . '&fs_page=' . $page . '&fs_include_headings=');
+        $defaultParameters = [
+            'fs_page'=>1,
+            'fs_sort'=>'result_id',
+            'fs_sort_direction'=>'asc',
+            'fs_include_headings'=>''
+        ];
+        $_parameters= array_replace($defaultParameters, $parameters);
+        $paramString = "";
+        foreach($_parameters as $key => $value){
+            $paramString .= "&$key=$value";
+        }
+        $response = $this->client->get($this->base_url . 'forms/' . $formName . '/results?fs_api_key=' . $this->api_key.$paramString);
         return $this->parseResponse($response);
     }
 

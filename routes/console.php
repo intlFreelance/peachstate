@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
-
+use App\Http\Controllers\FormSiteController;
 /*
 |--------------------------------------------------------------------------
 | Console Routes
@@ -16,3 +16,14 @@ use Illuminate\Foundation\Inspiring;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+Artisan::command('getNewHireResults', function () {
+    try{
+        $FormSiteController = new FormSiteController();
+        $result = $FormSiteController->getNewHireResults();
+        $result = "-----$result-----";
+        $this->comment($result);
+    }catch(Exception $ex){
+        $this->comment($ex->getMessage());
+    }
+})->describe('Get new Hire Application Results');
