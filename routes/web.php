@@ -17,3 +17,7 @@ Route::get('/', function () {
 
 Route::get('formsite/all-forms', 'FormSiteController@getFormSiteForms');
 Route::get('formsite/new-hire-results', 'FormSiteController@getNewHireResults');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index');
