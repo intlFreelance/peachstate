@@ -31,7 +31,8 @@ class FormSiteForm
 
     public function allForms()
     {
-        $response = $this->client->get($this->base_url . 'forms?fs_api_key=' . $this->api_key);
+        $url = $this->base_url . 'forms?fs_api_key=' . $this->api_key;
+        $response = $this->client->get($url);
         return $this->parseResponse($response);
     }
 
@@ -48,7 +49,8 @@ class FormSiteForm
         foreach($_parameters as $key => $value){
             $paramString .= "&$key=$value";
         }
-        $response = $this->client->get($this->base_url . 'forms/' . $formName . '/results?fs_api_key=' . $this->api_key.$paramString);
+        $url = $this->base_url . 'forms/' . $formName . '/results?fs_api_key=' . $this->api_key . $paramString;
+        $response = $this->client->get($url);
         return $this->parseResponse($response);
     }
 
