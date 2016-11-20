@@ -40,7 +40,7 @@ class CreateApplicantsTable extends Migration
             $table->string('supervisor')->nullable();
             $table->date('hireDate')->nullable();
             $table->string('fullOrPartTime')->nullable();
-            $table->string('compType')->nulable();
+            $table->string('compType')->nullable();
             $table->decimal('payRate', 10, 2);
         });
         
