@@ -20,4 +20,9 @@ Route::get('formsite/new-hire-results', 'FormSiteController@getNewHireResults');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+
+Route::group(['prefix'=>'admin', 'namespace' => 'Admin', 'middleware'=>'auth'], function () {
+    Route::get('/resultslog', 'AdminController@resultslog');
+    Route::get('/', 'AdminController@home');
+});
+
