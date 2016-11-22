@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Route::get('formsite/all-forms', 'FormSiteController@getFormSiteForms');
 Route::get('formsite/new-hire-results', 'FormSiteController@getNewHireResults');
-
+Route::get('ultipro/send-result', 'UltiproController@sendResult');
 Auth::routes();
 
 

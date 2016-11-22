@@ -168,7 +168,6 @@ return [
          */
         Nayjest\Grids\ServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
-        //
 
         /*
          * Application Service Providers...
@@ -178,6 +177,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Artisaninweb\SoapWrapper\ServiceProvider::class,
         
     ],
 
@@ -230,6 +230,7 @@ return [
         'HTML'  => Collective\Html\HtmlFacade::class,
         'Grids' => Nayjest\Grids\Grids::class,
         'Input' => Illuminate\Support\Facades\Input::class,
+        'SoapWrapper' => Artisaninweb\SoapWrapper\Facades\SoapWrapper::class
 
     ],
 
