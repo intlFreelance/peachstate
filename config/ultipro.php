@@ -9,8 +9,8 @@ return [
         "ClientAccessKey"=>'EOFVE',
         "Password"=>'Peachy05!',
         "UserAccessKey"=>'BF1CID0000K0',
-        "UserName"=>'PSTC999999'
-    ],
+        "UserName"=>'PSTC999999'    
+        ],
      'hotel_wsdl'    => 'http://demo-hotelws.touricoholidays.com/HotelFlow.svc?WSDL',
     'hotel_header'  => ['LoginName'=>'Fir110','Password'=>'111111','Culture'=>'en_US','Version'=>'7.123'],
 ];

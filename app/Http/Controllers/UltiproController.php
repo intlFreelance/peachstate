@@ -12,7 +12,7 @@ class UltiproController extends Controller
         try{
             $ultipro_api = new Ultipro;
             //echo var_dump($ultipro_api->functions());
-            //echo var_dump($ultipro_api->hotel());
+
             echo var_dump($ultipro_api->authenticate());
         }  catch (Exception $ex){
             throw $ex;
