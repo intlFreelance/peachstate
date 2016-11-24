@@ -62,16 +62,22 @@ class Ultipro
         echo var_dump($service->getFunctions());
         echo "<br><br>";
         
-        $e= new SoapVar([
-            'AddressLine1' => '123 Maple Ln.', 
-            'AddressLine2' => '',
-            'AlternateEmailAddress'=>''
-        ], SOAP_ENC_OBJECT, NULL, "http://www.ultipro.com/contracts");
+        $newHireXML = '<NewHireUsa xmlns="http://www.ultipro.com/services/employeenewhire">
+            <entities xmlns:b="http://www.ultipro.com/contracts" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+                <b:Employee>
+                    <b:AddressLine1>123 Maple Ln.</b:AddressLine1>
+                    <b:AddressLine2/>
+                    <b:AlternateEmailAddress/>
+                </b:Employee>
+            </entities>
+        </NewHireUsa>';
+
+        $e = new SoapVar($newHireXML, XSD_ANYXML);
         
         $response = $service->call('NewHireUsa',[$e]);
         echo htmlentities($service->getLastRequest());
         echo "<br><br>";
-        echo var_dump($response);
+        dd($response);
         //return $response;
     }
 }
