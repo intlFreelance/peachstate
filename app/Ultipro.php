@@ -3,41 +3,75 @@
 namespace App;
 
 use Exception;
-use Artisaninweb\SoapWrapper\Extension\SoapService;
+use SoapVar;
+use Artisaninweb\SoapWrapper\Service;
 
-class Ultipro extends SoapService
+class Ultipro
 {
     protected $name = 'ultipro';
     protected $trace = true;
     protected $options = [
-        'soap_version'=>SOAP_1_2
+        'soap_version'=>SOAP_1_2,
+        'trace'=>true
     ];
-    public function __construct()
-    {
-        if(!empty(config('ultipro.login_wsdl')))
-        {
-            $this->wsdl(config('ultipro.login_wsdl'))
-                 ->createClient();
-            return;
-        }
-        throw new Exception("The variable 'wsdl' must be set.");
+    private $token;
+    private $base_url;
+    private $service;
+    public function __construct(){
+        $this->authenticate();
     }
-    public function authenticate(){
-         if(empty(config('ultipro.login_header'))){
+    private function authenticate(){
+        $service = new Service();
+        if(empty(config('ultipro.login_wsdl'))){
+            throw new Exception("The variable 'ultipro.login_wsdl' must be set.");
+        }
+        if(empty(config('ultipro.login_header'))){
              throw new Exception("The configuration 'ultipro.login_header' must be set.");
          }
-        $this->header('http://www.w3.org/2005/08/addressing','Action', 'http://www.ultipro.com/services/loginservice/ILoginService/Authenticate', true);
-        $this->header('http://www.ultipro.com/services/loginservice','TokenRequest', ["Headers"=>config('ultipro.login_header')]);
-        //return $this->client->__getTypes();
-         $response = $this->call('Authenticate',[]);
-        return [
-            'response' => $response,
-            'headers'=> $this->client->__getLastRequestHeaders(),
-            'request'=>$this->client->__getLastRequest() 
-        ];
+         if(empty(config('ultipro.base_url'))){
+             throw new Exception("The configuration 'ultipro.base_url' must be set.");
+         }
+        $this->base_url = config('ultipro.base_url');
+        $service->wsdl(config('ultipro.login_wsdl'));
+        $service->options($this->options);
+        $service->createClient();
+        $service->header('http://www.w3.org/2005/08/addressing','Action', $this->base_url.'/loginservice/ILoginService/Authenticate', true);
+        foreach(config('ultipro.login_header') as $key => $value){
+            $service->header($this->base_url.'/loginservice',$key, $value);
+        }
+        $response = $service->call('Authenticate',[]);
+        if($response->Status != "Ok"){
+            throw new Exception($response->StatusMessage);
+        }
+        $this->token = $response->Token;
     }
-    public function functions()
-    {
-        return $this->getFunctions();
+    public function sendResult(){
+        ini_set('max_execution_time', 600);
+        $service = new Service();
+        if(empty(config('ultipro.newHire_wsdl'))){
+            throw new Exception("The variable 'ultipro.newHire_wsdl' must be set.");
+        }
+        $login_header = config('ultipro.login_header');
+        $service->header = [];
+        $service->wsdl(config('ultipro.newHire_wsdl'));
+        $service->options($this->options);
+        $service->createClient();
+        $service->header('http://www.w3.org/2005/08/addressing','Action', $this->base_url.'/employeenewhire/IEmployeeNewHire/NewHireUsa', true);
+        $service->header('http://www.ultimatesoftware.com/foundation/authentication/ultiprotoken', 'UltiProToken', $this->token);
+        $service->header('http://www.ultimatesoftware.com/foundation/authentication/clientaccesskey','ClientAccessKey',$login_header["ClientAccessKey"]);
+        echo var_dump($service->getFunctions());
+        echo "<br><br>";
+        
+        $e= new SoapVar([
+            'AddressLine1' => '123 Maple Ln.', 
+            'AddressLine2' => '',
+            'AlternateEmailAddress'=>''
+        ], SOAP_ENC_OBJECT, NULL, "http://www.ultipro.com/contracts");
+        
+        $response = $service->call('NewHireUsa',[$e]);
+        echo htmlentities($service->getLastRequest());
+        echo "<br><br>";
+        echo var_dump($response);
+        //return $response;
     }
 }

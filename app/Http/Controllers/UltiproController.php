@@ -10,10 +10,8 @@ class UltiproController extends Controller
 {
     public function sendResult(){
         try{
-            $ultipro_api = new Ultipro;
-            //echo var_dump($ultipro_api->functions());
-
-            echo var_dump($ultipro_api->authenticate());
+            $ultipro_api = new Ultipro();
+            $ultipro_api->sendResult();
         }  catch (Exception $ex){
             throw $ex;
         }
