@@ -11,7 +11,11 @@ class UltiproController extends Controller
     public function sendResult(){
         try{
             $ultipro_api = new Ultipro();
-            $ultipro_api->sendResult();
+            $newHire = [
+                "AddressLine1"=>"4059 W 159th ST",
+                "AddressLine2"=>"",
+            ];
+            $ultipro_api->sendResult($newHire);
         }  catch (Exception $ex){
             throw $ex;
         }
