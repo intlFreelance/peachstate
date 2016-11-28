@@ -13,7 +13,7 @@ use Exception;
 class FormSiteController extends Controller
 {
     private $applicants;
-    private $logs;
+    
     public function getFormsiteForms(){
         $form_api = new FormSiteForm;
         dd($form_api->allForms());
