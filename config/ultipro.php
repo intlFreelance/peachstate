@@ -1,13 +1,8 @@
 <?php
 
 return [
-    'base_url' => 'http://www.ultipro.com/services',
-    'newHire_wsdl'=>'https://service4.ultipro.com/services/EmployeeNewHire?wsdl',
-    'login_wsdl'=>'https://service4.ultipro.com/services/LoginService?wsdl',
-    'login_header'=>[
-        "ClientAccessKey"=>'EOFVE',
-        "Password"=>'Peachy05!',
-        "UserAccessKey"=>'BF1CID0000K0',
-        "UserName"=>'PSTC999999'    
-    ]
+    'base_url' => 'https://service4.ultipro.com/services/employeehire/v1/pendinghires',
+    "password"=>'Pr0c3ssH1r3_2016',
+    "user_api_key"=>'EOFVE',
+    "username"=>'ProcessHire'    
 ];

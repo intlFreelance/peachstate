@@ -32,9 +32,9 @@ $cfg = [
                 
             ],
             [
-                'name'=>'applicationStatus',
-                'label'=>'Application Status',
-                'sortable'=>true,
+                'name'=>'description',
+                'label'=>'Description',
+                'sortable'=>false,
                 
             ],
             [

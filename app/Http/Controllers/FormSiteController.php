@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\FormSiteForm;
 use App\Applicant;
 use App\ResultLog;
+use App\Ultipro;
 use Carbon\Carbon;
 use Exception;
 
@@ -21,94 +22,101 @@ class FormSiteController extends Controller
     public function getNewHireResults(){
         ini_set('max_execution_time', 600);
         $this->applicants = 0;
-        $this->logs = 0;
-        $maxApplicationId = Applicant::getMaxApplicationId() + 1;
-        $pageNum = 1;
+        $maxApplicationId = ResultLog::getMaxApplicationId() + 1;
         $form_api = new FormSiteForm;
         $parameters = ['fs_min_id'=>$maxApplicationId];
-        do{
-            $parameters['fs_page'] = $pageNum;
-            $xmlDoc = $form_api->getFormResults('form18', $parameters);
-            $status = $xmlDoc->firstChild->getAttribute("status");
-            if($status == "failure") {
-                // get error message
-                $error = $xmlDoc->firstChild->nodeValue;
-                die($error);
-            }
-            $resultLength = $xmlDoc->getElementsByTagName("result")->length;
-            if($resultLength > 0) {
-                $this->mapFormResults($xmlDoc);
-                //$this->outputFormResults($xmlDoc);
-            }
-            $pageNum++;
-        }while($resultLength > 0);
-        return $this->applicants . " applications were successfully inserted.";
+        $xmlDoc = $form_api->getFormResults('form18', $parameters);
+        $status = $xmlDoc->firstChild->getAttribute("status");
+        if($status == "failure") {
+            // get error message
+            $error = $xmlDoc->firstChild->nodeValue;
+            die($error);
+        }
+        $resultLength = $xmlDoc->getElementsByTagName("result")->length;
+        if($resultLength > 0) {
+            $this->mapFormResults($xmlDoc);
+            //$this->outputFormResults($xmlDoc);
+        }
+        return $this->applicants . " application(s) successfully inserted to Ultipro.";
     }
     private function mapFormResults($xmlDoc){
         try{
             $results = $xmlDoc->getElementsByTagName("result");
+            $ultipro = new Ultipro();
             foreach($results as $result){
                 // map each result
                 $metas = $result->getElementsByTagName("meta");
-                $items = $result->getElementsByTagName("item");
                 $result_status = $this->getElementValueByAttribute($metas, "id", "result_status");
-                
-                //map the result log
-                $applicationId = $result->getAttribute("id");
-                $firstName = $this->getElementValuesByAttribute($items, "id", "1");
-                $lastName = $this->getElementValuesByAttribute($items, "id", "2");
+                $applicant = $this->getApplicant($result);
+
+                //map the result log retrieved from formsite
                 $log = new ResultLog;
-                $log->applicationId = $applicationId;
-                $log->firstName = $firstName;
-                $log->lastName = $lastName;
-                $log->applicationStatus = $result_status;
+                $log->applicationId = $applicant->applicationId;
+                $log->firstName = $applicant->firstName;
+                $log->lastName = $applicant->lastName;
+                $log->description = "Application Status: {$result_status}. Application retrieved from Formsite.";
                 $log->save();
-                $this->logs++;
                 
                 //skip if the result is not complete
                 if($result_status != "Complete"){
                     continue;
                 }
-                $applicant = new Applicant;
-                $applicant->applicationId = $applicationId;
-                $applicant->firstName = $firstName;
-                $applicant->middleName = $this->getElementValuesByAttribute($items, "id", "4");
-                $applicant->lastName = $lastName;
-                $applicant->gender = $this->getElementValuesByAttribute($items, "id", "23");
-                $strDateOfBirth = $this->getElementValuesByAttribute($items, "id", "165");
-                $dateOfBirth = isset($strDateOfBirth) ? Carbon::createFromFormat('m/d/Y', $strDateOfBirth) : null;
-                $applicant->dateOfBirth = $dateOfBirth;
-                $applicant->maritalStatus = $this->getElementValuesByAttribute($items, "id", "25");
-                $applicant->race = $this->getElementValuesByAttribute($items, "id", "24");
-                $applicant->ssn = $this->getElementValuesByAttribute($items, "id", "12");
-                $applicant->email = $this->getElementValuesByAttribute($items, "id", "21");
-                $applicant->addressLine1 = $this->getElementValuesByAttribute($items, "id", "15");
-                $applicant->addressLine2 = $this->getElementValuesByAttribute($items, "id", "16");
-                $applicant->city = $this->getElementValuesByAttribute($items, "id", "17");
-                $applicant->state = $this->getElementValuesByAttribute($items, "id", "18");
-                $applicant->zipCode = $this->getElementValuesByAttribute($items, "id", "19");
-                $applicant->location = $this->getElementValuesByAttribute($items, "id", "113");
-                $applicant->phoneNumber = $this->getElementValuesByAttribute($items, "id", "20");
-                $applicant->bankName = $this->getElementValuesByAttribute($items, "id", "139");
-                $applicant->accountType = $this->getElementValuesByAttribute($items, "id", "145");
-                $applicant->routingNumber = $this->getElementValuesByAttribute($items, "id", "140");
-                $applicant->accountNumber = $this->getElementValuesByAttribute($items, "id", "143");
-                $applicant->employeeNumber = $this->getElementValuesByAttribute($items, "id", "166");
-                $applicant->supervisor = $this->getElementValuesByAttribute($items, "id", "115");
-                $strHireDate = $this->getElementValuesByAttribute($items, "id", "248");
-                $hireDate = isset($strHireDate) ? Carbon::createFromFormat('m/d/Y', $strHireDate) : null;
-                $applicant->hireDate = $hireDate;
-                $applicant->fullOrPartTime = $this->getElementValuesByAttribute($items, "id", "173");
-                $applicant->compType = $this->getElementValuesByAttribute($items, "id", "172");
-                $strPayRate = $this->getElementValuesByAttribute($items, "id", "170");
-                $payRate = is_numeric($strPayRate) ? $strPayRate : 0.00;
-                $applicant->payRate = $payRate;
-                $applicant->save();
-                $this->applicants++;
+                //send applicant to Ultipro
+                $ultiproArray = $applicant->toUltiproArray();
+                $response = $ultipro->sendResult($ultiproArray);
+                $responseCode = $response->getStatusCode();
+                
+                //map the result log sent to ultipro
+                $log = new ResultLog;
+                $log->applicationId = $applicant->applicationId;
+                $log->firstName = $applicant->firstName;
+                $log->lastName = $applicant->lastName;
+                if($responseCode == 201){
+                    $log->description = "Application successfully sent to Ultipro.";
+                    $this->applicants++;
+                }else{
+                    $log->description = "Application NOT sent to Ultipro. Response Code: {$responseCode}. Response Body: {$response->getBody()}";
+                }
+                $log->save();
+                
             }
         }catch(Exception $ex){
             die($ex->getMessage());
         }
+    }
+    private function getApplicant($result){
+        $items = $result->getElementsByTagName("item");
+        $applicant = new Applicant;
+        $applicant->applicationId = $result->getAttribute("id");
+        $applicant->firstName = $this->getElementValuesByAttribute($items, "id", "1");
+        $applicant->middleName = $this->getElementValuesByAttribute($items, "id", "4");
+        $applicant->lastName = $this->getElementValuesByAttribute($items, "id", "2");
+        $applicant->gender = $this->getElementValuesByAttribute($items, "id", "23");
+        $strDateOfBirth = $this->getElementValuesByAttribute($items, "id", "165");
+        $dateOfBirth = isset($strDateOfBirth) ? Carbon::createFromFormat('m/d/Y', $strDateOfBirth) : null;
+        $applicant->dateOfBirth = $dateOfBirth;
+        $applicant->maritalStatus = $this->getElementValuesByAttribute($items, "id", "25");
+        $applicant->race = $this->getElementValuesByAttribute($items, "id", "24");
+        $applicant->ssn = $this->getElementValuesByAttribute($items, "id", "12");
+        $applicant->email = $this->getElementValuesByAttribute($items, "id", "21");
+        $applicant->addressLine1 = $this->getElementValuesByAttribute($items, "id", "15");
+        $applicant->addressLine2 = $this->getElementValuesByAttribute($items, "id", "16");
+        $applicant->city = $this->getElementValuesByAttribute($items, "id", "17");
+        $applicant->state = $this->getElementValuesByAttribute($items, "id", "18");
+        $applicant->zipCode = $this->getElementValuesByAttribute($items, "id", "19");
+        $applicant->location = $this->getElementValuesByAttribute($items, "id", "113");
+        $applicant->phoneNumber = $this->getElementValuesByAttribute($items, "id", "20");
+        $applicant->employeeNumber = $this->getElementValuesByAttribute($items, "id", "166");
+        $applicant->supervisor = $this->getElementValuesByAttribute($items, "id", "115");
+        $strHireDate = $this->getElementValuesByAttribute($items, "id", "248");
+        $hireDate = isset($strHireDate) ? Carbon::createFromFormat('m/d/Y', $strHireDate) : null;
+        $applicant->hireDate = $hireDate;
+        $applicant->fullOrPartTime = $this->getElementValuesByAttribute($items, "id", "173");
+        $applicant->compType = $this->getElementValuesByAttribute($items, "id", "172");
+        $strPayRate = $this->getElementValuesByAttribute($items, "id", "170");
+        $payRate = is_numeric($strPayRate) ? $strPayRate : 0.00;
+        $applicant->payRate = $payRate;
+        return $applicant;
     }
     private function getElementValuesByAttribute($xmlDoc, $attribute, $value, $multiple=false){
         $values = [];

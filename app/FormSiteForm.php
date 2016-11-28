@@ -38,23 +38,20 @@ class FormSiteForm
 
     public function getFormResults($formName, $parameters=[]){
         $defaultParameters = [
+            'fs_api_key'=>$this->api_key,
             'fs_page'=>1,
             'fs_sort'=>'result_id',
             'fs_sort_direction'=>'asc',
-            'fs_include_headings'=>''
+            'fs_include_headings'=>'',
+            'fs_limit'=>1   //Limit set to 1 for testing purposes
         ];
-        $_parameters= array_replace($defaultParameters, $parameters);
-        $paramString="";
-        foreach($_parameters as $key => $value){
-            $paramString.="&$key=$value";
-        }
-        $url = $this->base_url . 'forms/' . $formName . '/results?fs_api_key=' . $this->api_key . $paramString;
-        $response = $this->client->get($url);
+        $queryParameters = array_replace($defaultParameters, $parameters);
+        $url ="{$this->base_url}forms/{$formName}/results";
+        $response = $this->client->request('GET', $url,['query'=>$queryParameters]);
         return $this->parseResponse($response);
     }
 
-    private function parseResponse($response)
-    {
+    private function parseResponse($response){
         $xml = $response->getBody()->getContents();
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
