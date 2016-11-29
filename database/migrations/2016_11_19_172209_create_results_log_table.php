@@ -18,7 +18,7 @@ class CreateResultsLogTable extends Migration
             $table->bigInteger('applicationId');
             $table->string('firstName')->nullable();
             $table->string('lastName')->nullable();
-            $table->string('applicationStatus');
+            $table->text('description');
             $table->timestamps();
         });
     }

@@ -11,4 +11,8 @@ class ResultLog extends Model
         'created_at',
         'updated_at'
     ];
+    public static function getMaxApplicationId(){
+        $max = static::max('applicationId');
+        return (isset($max) ? $max : 0);
+    }
 }
