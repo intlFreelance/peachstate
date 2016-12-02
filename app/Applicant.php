@@ -7,9 +7,11 @@ class Applicant
     public function toUltiproArray(){
         return [
             "JobCode"=>"UNDEFND",//default
+            "EmployeeTypeCode"=>"REG",
             "NameFirst"=>$this->firstName,
             "NameMiddle"=>empty($this->middleName) ? null : $this->middleName,
             "NameLast"=>$this->lastName,
+            "NamePreferred"=> empty($this->preferredName) ? null : $this->preferredName,
             "GenderCode" => empty($this->gender) ? null : ($this->gender=="Male"? "M" : "F") ,
             "DateOfBirth"=> empty($this->dateOfBirth) ? null : $this->dateOfBirth->format("Y-m-d"),
             "MaritalStatusCode"=> empty($this->maritalStatus) ? null : substr($this->maritalStatus, 0, 1),
@@ -22,14 +24,19 @@ class Applicant
             "StateOrProvinceCode"=>$this->getStateCode(),
             "ZipOrPostalCode"=>empty($this->zipCode) ? null : $this->zipCode,
             "LocationCode"=>$this->getLocationCode(),
+            "OrgLevel1Code"=>$this->getOrgLevel1Code(),
+            "OrgLevel2Code"=>$this->getOrgLevel2Code(),
             "HomePhoneNumber"=>empty($this->phoneNumber) ? null : str_replace("-", "", $this->phoneNumber),
             "EmployeeNumber"=>empty($this->employeeNumber) ? null : $this->employeeNumber,
             "StartDate"=>empty($this->hireDate) ? null : $this->hireDate->format("Y-m-d"),
             "FullTimeOrPartTimeCode"=>empty($this->fullOrPartTime) ? null : (trim($this->fullOrPartTime) == "Full Time" ? "FT" : "PT"),
             "HourlyOrSalaryCode"=>$this->getHourlyOrSalaryCode(),
-            "PayRate"=>empty($this->payRate) ? null : $this->payRate
+            "PayRate"=>empty($this->payRate) ? null : $this->payRate,
+            "EarningsGroupCode"=>"ALL",
+            "ScheduledWorkHours"=>null
         ];
-    }private function getHourlyOrSalaryCode(){
+    }
+    private function getHourlyOrSalaryCode(){
         switch(trim($this->compType)){
             case "Hourly":
                 return "H";
@@ -115,21 +122,85 @@ class Applicant
         return empty($states[$this->state]) ? null : $states[$this->state];
     }
     private function getLocationCode(){
-        switch(trim($this->location)){
-            case "Forest Park": 
-            case "Jefferson": 
-            case "SV Center": 
-            case "Austell": 
-            case "Norcross":
-            case "McDonough": 
-            case "PDC": 
-            case "Byron":
+        switch(trim(strtolower($this->location))){
+            case "forest park": 
+                return "FP";
+            case "jefferson": 
+                return "JEF";
+            case "austell": 
+                return "AUST";
+            case "norcross":
+                return "NOR";
+            case "mcdonough": 
+                return "MCD";
+            case "pdc": 
+                return "PDC";
+            case "byron":
+                return "BYRON";
+            case "select trucks":
+                return "SELECT";
+            case "sv center": 
+                return "SVC";
+            case "birmingham":
+                return "BHAM";
+            case "tuscaloosa":
+                return "TUSC";
+            case "florida":
+                return "FL";
+            default:
+                return null;
+        }
+    }
+    private function getOrgLevel1Code(){
+        switch(trim(strtolower($this->location))){
+            case "forest park": 
                 return "PSFL";
-            case "Select Trucks":
+            case "jefferson": 
+                return "PSFL";
+            case "sv center": 
+                return "PSFL";
+            case "austell": 
+                return "PSFL";
+            case "norcross":
+                return "PSFL";
+            case "mcdonough": 
+                return "PSFL";
+            case "pdc": 
+                return "PSFL";
+            case "byron":
+                return "PSFL";
+            case "select trucks":
                 return "SEL";
-            case "Birmingham":
-            case "Tuscaloosa":
+            case "birmingham":
                 return "BFL";
+            case "tuscaloosa":
+                return "BFL";
+            default:
+                return null;
+        }
+    }
+    private function getOrgLevel2Code() {
+        switch(trim($this->orgLevel2)){
+            case "Parts":
+                return "PARTS";
+            case "Service":
+                return "SERVP";
+            case "Service Admin":
+                return "SERVA"; 
+            case "Body Shop": 
+                return "BODP";
+            case "Body Shop Admin":
+                return "BODA";
+            case "Administration":
+                return "ADMIN"; 
+            case "New Truck Sales":
+                return "NTS";
+            case "New Truck Sales Admin":
+                return "NTSA";
+            case "Used Truck Sales":
+                return "UTS";
+            case "Used Truck Sales Admin":
+                return "UTSA";
             default:
                 return null;
         }

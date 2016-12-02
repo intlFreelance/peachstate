@@ -24,7 +24,7 @@ class FormSiteController extends Controller
         $this->applicants = 0;
         $maxApplicationId = ResultLog::getMaxApplicationId() + 1;
         $form_api = new FormSiteForm;
-        $parameters = ['fs_min_id'=>$maxApplicationId];
+        $parameters = ['fs_min_id'=>'9401306'];//$maxApplicationId];
         $xmlDoc = $form_api->getFormResults('form18', $parameters);
         $status = $xmlDoc->firstChild->getAttribute("status");
         if($status == "failure") {
@@ -35,7 +35,7 @@ class FormSiteController extends Controller
         $resultLength = $xmlDoc->getElementsByTagName("result")->length;
         if($resultLength > 0) {
             $this->mapFormResults($xmlDoc);
-            //$this->outputFormResults($xmlDoc);
+            // $this->outputFormResults($xmlDoc); exit;
         }
         return $this->applicants . " application(s) successfully inserted to Ultipro.";
     }
@@ -63,6 +63,7 @@ class FormSiteController extends Controller
                 }
                 //send applicant to Ultipro
                 $ultiproArray = $applicant->toUltiproArray();
+                // dd($ultiproArray);
                 $response = $ultipro->sendResult($ultiproArray);
                 $responseCode = $response->getStatusCode();
                 
@@ -91,6 +92,7 @@ class FormSiteController extends Controller
         $applicant->firstName = $this->getElementValuesByAttribute($items, "id", "1");
         $applicant->middleName = $this->getElementValuesByAttribute($items, "id", "4");
         $applicant->lastName = $this->getElementValuesByAttribute($items, "id", "2");
+        $applicant->preferredName = $this->getElementValuesByAttribute($items, "id", "301");
         $applicant->gender = $this->getElementValuesByAttribute($items, "id", "23");
         $strDateOfBirth = $this->getElementValuesByAttribute($items, "id", "165");
         $dateOfBirth = isset($strDateOfBirth) ? Carbon::createFromFormat('m/d/Y', $strDateOfBirth) : null;
@@ -104,10 +106,11 @@ class FormSiteController extends Controller
         $applicant->city = $this->getElementValuesByAttribute($items, "id", "17");
         $applicant->state = $this->getElementValuesByAttribute($items, "id", "18");
         $applicant->zipCode = $this->getElementValuesByAttribute($items, "id", "19");
-        $applicant->location = $this->getElementValuesByAttribute($items, "id", "113");
+        $applicant->location = $this->getElementValuesByAttribute($items, "id", "312");
         $applicant->phoneNumber = $this->getElementValuesByAttribute($items, "id", "20");
         $applicant->employeeNumber = $this->getElementValuesByAttribute($items, "id", "166");
         $applicant->supervisor = $this->getElementValuesByAttribute($items, "id", "115");
+        $applicant->orgLevel2 = $this->getElementValuesByAttribute($items, "id", "313");
         $strHireDate = $this->getElementValuesByAttribute($items, "id", "248");
         $hireDate = isset($strHireDate) ? Carbon::createFromFormat('m/d/Y', $strHireDate) : null;
         $applicant->hireDate = $hireDate;
@@ -116,6 +119,7 @@ class FormSiteController extends Controller
         $strPayRate = $this->getElementValuesByAttribute($items, "id", "170");
         $payRate = is_numeric($strPayRate) ? $strPayRate : 0.00;
         $applicant->payRate = $payRate;
+        // dd($applicant);
         return $applicant;
     }
     private function getElementValuesByAttribute($xmlDoc, $attribute, $value, $multiple=false){
