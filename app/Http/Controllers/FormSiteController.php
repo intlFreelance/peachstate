@@ -89,10 +89,10 @@ class FormSiteController extends Controller
         $items = $result->getElementsByTagName("item");
         $applicant = new Applicant;
         $applicant->applicationId = $result->getAttribute("id");
-        $applicant->firstName = $this->getElementValuesByAttribute($items, "id", "1");
-        $applicant->middleName = $this->getElementValuesByAttribute($items, "id", "4");
-        $applicant->lastName = $this->getElementValuesByAttribute($items, "id", "2");
-        $applicant->preferredName = $this->getElementValuesByAttribute($items, "id", "301");
+        $applicant->firstName = $this->properCase($this->getElementValuesByAttribute($items, "id", "1"));
+        $applicant->middleName = $this->properCase($this->getElementValuesByAttribute($items, "id", "4"));
+        $applicant->lastName = $this->properCase($this->getElementValuesByAttribute($items, "id", "2"));
+        $applicant->preferredName = $this->properCase($this->getElementValuesByAttribute($items, "id", "301"));
         $applicant->gender = $this->getElementValuesByAttribute($items, "id", "23");
         $strDateOfBirth = $this->getElementValuesByAttribute($items, "id", "165");
         $dateOfBirth = isset($strDateOfBirth) ? Carbon::createFromFormat('m/d/Y', $strDateOfBirth) : null;
@@ -101,16 +101,16 @@ class FormSiteController extends Controller
         $applicant->race = $this->getElementValuesByAttribute($items, "id", "24");
         $applicant->ssn = $this->getElementValuesByAttribute($items, "id", "12");
         $applicant->email = $this->getElementValuesByAttribute($items, "id", "21");
-        $applicant->addressLine1 = $this->getElementValuesByAttribute($items, "id", "15");
-        $applicant->addressLine2 = $this->getElementValuesByAttribute($items, "id", "16");
-        $applicant->city = $this->getElementValuesByAttribute($items, "id", "17");
-        $applicant->state = $this->getElementValuesByAttribute($items, "id", "18");
+        $applicant->addressLine1 = $this->properCase($this->getElementValuesByAttribute($items, "id", "15"));
+        $applicant->addressLine2 = $this->properCase($this->getElementValuesByAttribute($items, "id", "16"));
+        $applicant->city = $this->properCase($this->getElementValuesByAttribute($items, "id", "17"));
+        $applicant->state = $this->properCase($this->getElementValuesByAttribute($items, "id", "18"));
         $applicant->zipCode = $this->getElementValuesByAttribute($items, "id", "19");
         $applicant->location = $this->getElementValuesByAttribute($items, "id", "312");
         $applicant->phoneNumber = $this->getElementValuesByAttribute($items, "id", "20");
         $applicant->employeeNumber = $this->getElementValuesByAttribute($items, "id", "166");
-        $applicant->supervisor = $this->getElementValuesByAttribute($items, "id", "115");
-        $applicant->orgLevel2 = $this->getElementValuesByAttribute($items, "id", "313");
+        $applicant->supervisor = $this->properCase($this->getElementValuesByAttribute($items, "id", "115"));
+        $applicant->orgLevel2 = $this->properCase($this->getElementValuesByAttribute($items, "id", "313"));
         $strHireDate = $this->getElementValuesByAttribute($items, "id", "248");
         $hireDate = isset($strHireDate) ? Carbon::createFromFormat('m/d/Y', $strHireDate) : null;
         $applicant->hireDate = $hireDate;
@@ -121,6 +121,9 @@ class FormSiteController extends Controller
         $applicant->payRate = $payRate;
         // dd($applicant);
         return $applicant;
+    }
+    private function properCase($str){
+        return ucwords(strtolower($str));
     }
     private function getElementValuesByAttribute($xmlDoc, $attribute, $value, $multiple=false){
         $values = [];
