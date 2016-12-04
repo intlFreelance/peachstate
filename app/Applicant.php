@@ -180,26 +180,26 @@ class Applicant
         }
     }
     private function getOrgLevel2Code() {
-        switch(trim($this->orgLevel2)){
-            case "Parts":
+        switch(trim(strtolower($this->orgLevel2))){
+            case "parts":
                 return "PARTS";
-            case "Service":
+            case "service":
                 return "SERVP";
-            case "Service Admin":
+            case "service admin":
                 return "SERVA"; 
-            case "Body Shop": 
+            case "body shop": 
                 return "BODP";
-            case "Body Shop Admin":
+            case "body shop admin":
                 return "BODA";
-            case "Administration":
+            case "administration":
                 return "ADMIN"; 
-            case "New Truck Sales":
+            case "new truck sales":
                 return "NTS";
-            case "New Truck Sales Admin":
+            case "new truck sales admin":
                 return "NTSA";
-            case "Used Truck Sales":
+            case "used truck sales":
                 return "UTS";
-            case "Used Truck Sales Admin":
+            case "used truck sales admin":
                 return "UTSA";
             default:
                 return null;
