@@ -110,7 +110,7 @@ class FormSiteController extends Controller
         $applicant->phoneNumber = $this->getElementValuesByAttribute($items, "id", "20");
         $applicant->employeeNumber = $this->getElementValuesByAttribute($items, "id", "166");
         $applicant->supervisor = $this->properCase($this->getElementValuesByAttribute($items, "id", "115"));
-        $applicant->orgLevel2 = $this->$this->getElementValuesByAttribute($items, "id", "313");
+        $applicant->orgLevel2 = $this->getElementValuesByAttribute($items, "id", "313");
         $strHireDate = $this->getElementValuesByAttribute($items, "id", "248");
         $hireDate = isset($strHireDate) ? Carbon::createFromFormat('m/d/Y', $strHireDate) : null;
         $applicant->hireDate = $hireDate;
