@@ -29,7 +29,7 @@ class Applicant
             "HomePhoneNumber"=>empty($this->phoneNumber) ? null : str_replace("-", "", $this->phoneNumber),
             "EmployeeNumber"=>empty($this->employeeNumber) ? null : $this->employeeNumber,
             "StartDate"=>empty($this->hireDate) ? null : $this->hireDate->format("Y-m-d"),
-            "FullTimeOrPartTimeCode"=>empty($this->fullOrPartTime) ? null : (trim($this->fullOrPartTime) == "Full Time" ? "FT" : "PT"),
+            "FullTimeOrPartTimeCode"=>empty($this->fullOrPartTime) ? null : (trim($this->fullOrPartTime) == "Full Time" ? "F" : "P"),
             "HourlyOrSalaryCode"=>$this->getHourlyOrSalaryCode(),
             "PayRate"=>empty($this->payRate) ? null : $this->payRate,
             "EarningsGroupCode"=>"ALL",
@@ -121,7 +121,33 @@ class Applicant
         );
         return empty($states[$this->state]) ? null : $states[$this->state];
     }
-    private function getLocationCode(){
+    private function getLocationCode() {
+        $mappedCode = $this->mapLocationCode();
+        if (is_null($mappedCode)) {
+            $location = trim(strtoupper($this->location));
+            $locationCodes = [
+                "FP",
+                "JEF",
+                "AUST",
+                "NOR",
+                "MCD",
+                "PDC",
+                "BYRON",
+                "SELECT",
+                "SVC",
+                "BHAM",
+                "TUSC",
+                "FL"
+            ];
+
+            if (in_array($location, $locationCodes)) {
+                return $location;
+            }
+        }
+
+        return $mappedCode;
+    }
+    private function mapLocationCode(){
         switch(trim(strtolower($this->location))){
             case "forest park": 
                 return "FP";
@@ -193,13 +219,13 @@ class Applicant
                 return "BODA";
             case "administration":
                 return "ADMIN"; 
-            case "new truck sales":
+            case "new trucks sales":
                 return "NTS";
-            case "new truck sales admin":
+            case "new trucks sales admin":
                 return "NTSA";
-            case "used truck sales":
+            case "used trucks sales":
                 return "UTS";
-            case "used truck sales admin":
+            case "used trucks sales admin":
                 return "UTSA";
             default:
                 return null;

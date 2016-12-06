@@ -24,7 +24,7 @@ class FormSiteController extends Controller
         $this->applicants = 0;
         $maxApplicationId = ResultLog::getMaxApplicationId() + 1;
         $form_api = new FormSiteForm;
-        $parameters = ['fs_min_id'=>'9401306'];//$maxApplicationId];
+        $parameters = ['fs_min_id'=>'9409362'];//$maxApplicationId];
         $xmlDoc = $form_api->getFormResults('form18', $parameters);
         $status = $xmlDoc->firstChild->getAttribute("status");
         if($status == "failure") {
