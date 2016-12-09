@@ -22,9 +22,13 @@ class FormSiteController extends Controller
     public function getNewHireResults(){
         ini_set('max_execution_time', 600);
         $this->applicants = 0;
-        $maxApplicationId = ResultLog::getMaxApplicationId() + 1;
+        $maxApplicationId = empty(ResultLog::getMaxApplicationId()) ? null : ResultLog::getMaxApplicationId() + 1;
         $form_api = new FormSiteForm;
-        $parameters = ['fs_min_id'=>'9409362'];//$maxApplicationId];
+        $parameters = [
+            'fs_min_id'=>$maxApplicationId,
+            'fs_min_date'=>Carbon::now()->toDateTimeString()
+        ];
+
         $xmlDoc = $form_api->getFormResults('form18', $parameters);
         $status = $xmlDoc->firstChild->getAttribute("status");
         if($status == "failure") {

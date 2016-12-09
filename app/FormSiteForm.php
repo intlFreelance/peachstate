@@ -43,7 +43,7 @@ class FormSiteForm
             'fs_sort'=>'result_id',
             'fs_sort_direction'=>'asc',
             'fs_include_headings'=>'',
-            'fs_limit'=>1   //Limit set to 1 for testing purposes
+            // 'fs_limit'=>1   //Limit set to 1 for testing purposes
         ];
         $queryParameters = array_replace($defaultParameters, $parameters);
         $url ="{$this->base_url}forms/{$formName}/results";
