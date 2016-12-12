@@ -38,8 +38,8 @@ class FormSiteController extends Controller
         }
         $resultLength = $xmlDoc->getElementsByTagName("result")->length;
         if($resultLength > 0) {
-            //print_r($xmlDoc);
-            $this->mapFormResults($xmlDoc);
+            print_r($xmlDoc);
+            //$this->mapFormResults($xmlDoc);
             // $this->outputFormResults($xmlDoc); exit;
         }
         return $this->applicants . " application(s) successfully inserted to Ultipro.";
