@@ -38,7 +38,8 @@ class FormSiteController extends Controller
         }
         $resultLength = $xmlDoc->getElementsByTagName("result")->length;
         if($resultLength > 0) {
-            $this->mapFormResults($xmlDoc);
+            print_r($xmlDoc);
+            //  $this->mapFormResults($xmlDoc);
             // $this->outputFormResults($xmlDoc); exit;
         }
         return $this->applicants . " application(s) successfully inserted to Ultipro.";
@@ -60,7 +61,7 @@ class FormSiteController extends Controller
                 $log->lastName = $applicant->lastName;
                 $log->description = "Application Status: {$result_status}. Application retrieved from Formsite.";
                 $log->save();
-                
+
                 //skip if the result is not complete
                 if($result_status != "Complete"){
                     continue;
@@ -70,7 +71,7 @@ class FormSiteController extends Controller
                 // dd($ultiproArray);
                 $response = $ultipro->sendResult($ultiproArray);
                 $responseCode = $response->getStatusCode();
-                
+
                 //map the result log sent to ultipro
                 $log = new ResultLog;
                 $log->applicationId = $applicant->applicationId;
@@ -83,7 +84,7 @@ class FormSiteController extends Controller
                     $log->description = "Application NOT sent to Ultipro. Response Code: {$responseCode}. Response Body: {$response->getBody()}";
                 }
                 $log->save();
-                
+
             }
         }catch(Exception $ex){
             die($ex->getMessage());
@@ -171,17 +172,17 @@ class FormSiteController extends Controller
 		// output each result
 		foreach($results as $result) {
 			$alt = false;
-		
+
 			$metas = $result->getElementsByTagName("meta");
 			$items = $result->getElementsByTagName("item");
-			
+
 			echo("Result #".$result->getAttribute("id"));
 			echo('<table style="border: 1px solid black;border-collapse: collapse">\n');
 			echo('<tr><th style="border: 1px solid black;">id</th><th style="border: 1px solid black;">value</th></tr>\n');
 			echo('<tr><th style="border: 1px solid black;" colspan="2">metas</th></tr>\n');
 			foreach($metas as $meta) {
 				$alt = !$alt;
-				
+
 				echo("<tr".($alt ? ' class="alt"' : '').">"); // add alt class to every other line
 				echo('<td style="border: 1px solid black;">');
 				if(isset($headingMap)) {
@@ -198,7 +199,7 @@ class FormSiteController extends Controller
 			echo('<tr><th style="border: 1px solid black;" colspan="2">items</th></tr>\n');
 			foreach($items as $item) {
 				$alt = !$alt;
-				
+
 				echo("<tr".($alt ? ' class="alt"' : '').">"); // add alt class to every other line
 				echo('<td style="border: 1px solid black;">');
 				if(isset($headingMap)) {
@@ -207,19 +208,19 @@ class FormSiteController extends Controller
 					echo($item->getAttribute("id"));
 				}
 				echo("</td>");
-				
+
 				$values = $item->getElementsByTagName("value");
-				
+
 				echo('<td style="border: 1px solid black;">');
 				foreach($values as $value) {
 					echo($value->nodeValue);
 					echo(" ");
 				}
 				echo("</td>");
-				
+
 				echo("</tr>\n");
 			}
-			
+
 			echo("</table>\n");
 			echo("<br/>");
 		}
