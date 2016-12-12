@@ -26,7 +26,7 @@ class FormSiteController extends Controller
         $form_api = new FormSiteForm;
         $parameters = [
             'fs_min_id'=>$maxApplicationId,
-            'fs_min_date'=>Carbon::now()->subDays(5)->toDateTimeString()
+            'fs_min_date'=>Carbon::now()->subDays(2)->toDateTimeString()
         ];
 
         $xmlDoc = $form_api->getFormResults('form18', $parameters);
@@ -38,8 +38,8 @@ class FormSiteController extends Controller
         }
         $resultLength = $xmlDoc->getElementsByTagName("result")->length;
         if($resultLength > 0) {
-            print_r($xmlDoc);
-            //$this->mapFormResults($xmlDoc);
+            //print_r($xmlDoc);
+            $this->mapFormResults($xmlDoc);
             // $this->outputFormResults($xmlDoc); exit;
         }
         return $this->applicants . " application(s) successfully inserted to Ultipro.";
