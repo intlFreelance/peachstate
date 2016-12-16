@@ -50,7 +50,7 @@ class FormSiteController extends Controller
     public function retryNewHireResults(){
         ini_set('max_execution_time', 600);
         $this->applicants = 0;
-        $results = ResultLog::where('description', 'like', '%Application NOT sent to Ultipro%')->get();
+        $results = ResultLog::where('description', 'like', 'Application Status: Incomplete%')->get();
         $form_api = new FormSiteForm;
         foreach($results as $result){
             $description = $result->description;
@@ -60,7 +60,7 @@ class FormSiteController extends Controller
             $parameters = [
                 'fs_min_id'=>$result->applicationId,
                 'fs_max_id'=>$result->applicationId,
-               // 'fs_min_date'=>Carbon::now()->subDays(2)->toDateTimeString() 
+               // 'fs_min_date'=>Carbon::now()->subDays(2)->toDateTimeString()
             ];
             $xmlDoc = $form_api->getFormResults('form18', $parameters);
             $status = $xmlDoc->firstChild->getAttribute("status");
