@@ -27,3 +27,14 @@ Artisan::command('getNewHireResults', function () {
         $this->comment($ex->getMessage());
     }
 })->describe('Get new Hire Application Results');
+
+Artisan::command('retryNewHireResults', function () {
+    try{
+        $FormSiteController = new FormSiteController();
+        $result = $FormSiteController->retryNewHireResults();
+        $result = "-----$result-----";
+        $this->comment($result);
+    }catch(Exception $ex){
+        $this->comment($ex->getMessage());
+    }
+})->describe('Retry new Hire Application Results');
