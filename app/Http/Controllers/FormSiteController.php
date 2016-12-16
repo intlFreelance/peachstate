@@ -44,6 +44,37 @@ class FormSiteController extends Controller
         }
         return $this->applicants . " application(s) successfully inserted to Ultipro.";
     }
+    public function retryNewHireResults(){
+        ini_set('max_execution_time', 600);
+        $this->applicants = 0;
+        $results = ResultLog::where('description', 'like', '%Application NOT sent to Ultipro%')->get();
+        $form_api = new FormSiteForm;
+        foreach($results as $result){
+            $description = $result->description;
+            $newDescription = str_replace("Application NOT sent to Ultipro.","Application Retried to retrieve and send. Previous " , $description);
+            $result->description = $newDescription;
+            $result->save();
+            $parameters = [
+                'fs_min_id'=>$result->applicationId,
+                'fs_max_id'=>$result->applicationId,
+               // 'fs_min_date'=>Carbon::now()->subDays(2)->toDateTimeString() 
+            ];
+            $xmlDoc = $form_api->getFormResults('form18', $parameters);
+            $status = $xmlDoc->firstChild->getAttribute("status");
+            if($status == "failure") {
+                // get error message
+                $error = $xmlDoc->firstChild->nodeValue;
+                die($error);
+            }
+            $resultLength = $xmlDoc->getElementsByTagName("result")->length;
+            if($resultLength > 0) {
+                //print_r($xmlDoc);
+                $this->mapFormResults($xmlDoc);
+                // $this->outputFormResults($xmlDoc); exit;
+            }
+        }
+        return $this->applicants . " application(s) successfully inserted to Ultipro.";
+    }
     private function mapFormResults($xmlDoc){
         try{
             $results = $xmlDoc->getElementsByTagName("result");
