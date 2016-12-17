@@ -54,7 +54,7 @@ class FormSiteController extends Controller
         $form_api = new FormSiteForm;
         foreach($results as $result){
             $description = $result->description;
-            $newDescription = str_replace("Application NOT sent to Ultipro.","Application Retried to retrieve and send. Previous " , $description);
+            $newDescription = str_replace("Application Status: Incomplete","Application Status: Was Incomplete (Later Retried)", $description);
             $result->description = $newDescription;
             $result->save();
             $parameters = [
