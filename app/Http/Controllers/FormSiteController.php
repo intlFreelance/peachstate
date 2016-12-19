@@ -53,10 +53,6 @@ class FormSiteController extends Controller
         $results = ResultLog::where('description', 'like', 'Application Status: Incomplete%')->get();
         $form_api = new FormSiteForm;
         foreach($results as $result){
-            $description = $result->description;
-            $newDescription = str_replace("Application Status: Incomplete","Application Status: Was Incomplete (Later Retried)", $description);
-            $result->description = $newDescription;
-            $result->save();
             $parameters = [
                 'fs_min_id'=>$result->applicationId,
                 'fs_max_id'=>$result->applicationId,
@@ -72,6 +68,10 @@ class FormSiteController extends Controller
             $resultLength = $xmlDoc->getElementsByTagName("result")->length;
             if($resultLength > 0) {
                 //print_r($xmlDoc);
+                $description = $result->description;
+                $newDescription = str_replace("Application Status: Incomplete","Application Status: Was Incomplete (Later Retried)", $description);
+                $result->description = $newDescription;
+                $result->save();
                 $this->mapFormResults($xmlDoc);
                 // $this->outputFormResults($xmlDoc); exit;
             }
