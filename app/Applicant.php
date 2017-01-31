@@ -8,9 +8,9 @@ class Applicant
         return [
             "JobCode"=>"UNDEFND",//default
             "EmployeeTypeCode"=>"REG",
-            "NameFirst"=>$this->firstName,
-            "NameMiddle"=>empty($this->middleName) ? null : $this->middleName,
-            "NameLast"=>$this->lastName,
+            "NameFirst"=>trim($this->firstName),
+            "NameMiddle"=>empty($this->middleName) ? null : trim($this->middleName),
+            "NameLast"=>trim($this->lastName),
             "NamePreferred"=> empty($this->preferredName) ? null : $this->preferredName,
             "GenderCode" => empty($this->gender) ? null : ($this->gender=="Male"? "M" : "F") ,
             "DateOfBirth"=> empty($this->dateOfBirth) ? null : $this->dateOfBirth->format("Y-m-d"),
